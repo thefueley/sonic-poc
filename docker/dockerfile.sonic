@@ -1,0 +1,28 @@
+# Build the Sonic image
+FROM python:3.12.6 AS build-sonic
+ARG BUILD_REF
+ARG BUILD_DATE
+
+WORKDIR /sonic
+COPY . /sonic
+
+COPY  requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN groupadd -g 1000 sonic && \
+    useradd -u 1000 -d /sonic -g sonic -s /bin/sh -m sonic && \
+    chown -R sonic:sonic /sonic
+
+USER sonic
+
+# Set environment variables
+ENV FLASK_APP=sonic
+
+CMD ["sh", "-c", "flask init-db && flask run --host=0.0.0.0"]
+
+LABEL org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.title="sonic" \
+      org.opencontainers.image.authors="Anax <anax@anax.anax>" \
+      org.opencontainers.image.source="https://github.com/thefueley/sonic" \
+      org.opencontainers.image.revision="${BUILD_REF}" \
+      org.opencontainers.image.vendor="SONIC" \
