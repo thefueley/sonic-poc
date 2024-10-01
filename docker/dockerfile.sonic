@@ -9,7 +9,8 @@ COPY . /sonic
 COPY  requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN groupadd -g 1000 sonic && \
+RUN apk add --no-cache shadow && \
+    groupadd -g 1000 sonic && \
     useradd -u 1000 -d /sonic -g sonic -s /bin/sh -m sonic && \
     chown -R sonic:sonic /sonic
 
