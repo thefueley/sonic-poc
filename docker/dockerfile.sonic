@@ -1,5 +1,5 @@
 # Build the Sonic image
-FROM python:3.12.6 AS build-sonic
+FROM python:3.12.6-alpine3.20 AS build-sonic
 ARG BUILD_REF
 ARG BUILD_DATE
 
