@@ -1,0 +1,39 @@
+# CI/CD pipeline for Sonic PoC
+
+trigger:
+  - master
+  
+pool:
+  vmImage: ERGATIS
+
+stages:
+  - stage: Build
+    displayName: 'Build and Push Docker Image'
+    jobs:
+      - job: Build
+        displayName: 'Build Docker Image'
+        steps:
+          - script: |
+              echo Build Docker Image
+              make build
+          - script: |
+              echo Push Docker Image
+              make push
+
+  - stage: Test
+    displayName: 'Test'
+    jobs:
+      - job: SonarCloudAnalysis
+        displayName: 'Analyze Code with SonarCloud'
+        steps:
+          - script: |
+              echo TODO: Add SonarCloud Analysis
+
+  - stage: Deploy
+    displayName: 'Deploy to Azure Web App'
+    jobs:
+      - job: Deploy
+        displayName: 'Deploy Docker Image to Azure Web App'
+        steps:
+          - script: |
+              echo TODO: Deploy to Azure Web App
