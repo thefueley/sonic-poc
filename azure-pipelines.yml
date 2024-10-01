@@ -6,21 +6,7 @@ trigger:
 pool:
   name: ERGATIS
 
-variables:
-  - name: DISCORD_WEBHOOK_URL
-    value: $(DISCORD_WEBHOOK_URL)
-
-stages:
-  - stage: Analyze
-    displayName: 'Analyze Code Quality'
-    jobs:
-      - job: SonarCloudAnalysis
-        displayName: 'Analyze Code with SonarCloud'
-        steps:
-          - script: |
-              echo TODO: Add SonarCloud Analysis
-            displayName: 'Analyze Code with SonarCloud'
-  
+stages:  
   - stage: Build
     displayName: 'Build and Push Docker Image'
     jobs:
