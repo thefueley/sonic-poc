@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 # =================================================================
 # Building containers
-VERSION := 1.0
+VERSION ?= 1.0
 
 all: sonic
 
