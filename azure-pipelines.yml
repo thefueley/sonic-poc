@@ -4,7 +4,7 @@ trigger:
   - master
   
 pool:
-  vmImage: ERGATIS
+  name: ERGATIS
 
 stages:
   - stage: Build
