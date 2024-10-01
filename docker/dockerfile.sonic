@@ -22,8 +22,8 @@ ENV FLASK_APP=sonic
 CMD ["sh", "-c", "flask init-db && flask run --host=0.0.0.0"]
 
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
-      org.opencontainers.image.title="sonic" \
+      org.opencontainers.image.title="sonic-poc" \
       org.opencontainers.image.authors="Anax <anax@anax.anax>" \
-      org.opencontainers.image.source="https://github.com/thefueley/sonic" \
+      org.opencontainers.image.source="https://github.com/thefueley/sonic-poc" \
       org.opencontainers.image.revision="${BUILD_REF}" \
       org.opencontainers.image.vendor="SONIC" \

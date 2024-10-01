@@ -10,14 +10,14 @@ sonic: build push
 build:
 	docker buildx build --load \
 		-f docker/dockerfile.sonic \
-		-t thefueley/sonic:$(VERSION) \
+		-t thefueley/sonic-poc:$(VERSION) \
 		--build-arg BUILD_REF=$(VERSION) \
 		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
 		.
 push:
 	docker buildx build --push \
 		-f docker/dockerfile.sonic \
-		-t thefueley/sonic:$(VERSION) \
+		-t thefueley/sonic-poc:$(VERSION) \
 		--platform linux/amd64,linux/arm64 \
 		--build-arg BUILD_REF=$(VERSION) \
 		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
