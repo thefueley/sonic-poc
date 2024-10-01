@@ -44,5 +44,11 @@ stages:
       - job: Deploy
         displayName: 'Deploy Docker Image to Azure Web App'
         steps:
-          - script: |
-              echo TODO: Deploy to Azure Web App
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'AzureRM-SONIC'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az webapp config container set --name SONIC --resource-group SONIC --docker-custom-image-name thefueley/sonic-poc:$(Build.BuildId)
+                az webapp config appsettings set --name SONIC --resource-group SONIC --settings WEBSITES_PORT=5000
