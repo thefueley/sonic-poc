@@ -23,8 +23,8 @@ stages:
             displayName: 'Push Docker Image'
           - script: |
               echo Notify Discord of Successful Build
-              chmod +x notify_discord.sh
-              ./notify_discord.sh $(DISCORD_WEBHOOK_URL) "Build Success! Build ID: $(Build.BuildId)"
+              chmod +x scripts/notify_discord.sh
+              sh scripts/notify_discord.sh $(DISCORD_WEBHOOK_URL) "Build Success! Build ID: $(Build.BuildId)"
             displayName: 'Notify Discord of Successful Build'
             condition: succeeded()
             env:
@@ -56,8 +56,8 @@ stages:
                 az webapp config appsettings set --name SONIC --resource-group SONIC --settings WEBSITES_PORT=5000
           - script: |
               echo Notify Discord
-              chmod +x notify_discord.sh
-              ./notify_discord.sh $(DISCORD_WEBHOOK_URL) Deploy Success! Build ID: $(Build.BuildId)
+              chmod +x scripts/notify_discord.sh
+              sh scripts/notify_discord.sh $(DISCORD_WEBHOOK_URL) Deploy Success! Build ID: $(Build.BuildId)
             displayName: 'Notify Discord of Successful Deployment'
             condition: succeeded()
             env:
