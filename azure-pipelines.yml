@@ -7,6 +7,15 @@ pool:
   name: ERGATIS
 
 stages:
+  - stage: Analyze
+    displayName: 'Analyze Code Quality'
+    jobs:
+      - job: SonarCloudAnalysis
+        displayName: 'Analyze Code with SonarCloud'
+        steps:
+          - script: |
+              echo TODO: Add SonarCloud Analysis
+  
   - stage: Build
     displayName: 'Build and Push Docker Image'
     jobs:
@@ -20,14 +29,14 @@ stages:
               echo Push Docker Image
               make push
 
-  - stage: Test
-    displayName: 'Test'
+  - stage: UnitTests
+    displayName: 'UnitTests'
     jobs:
-      - job: SonarCloudAnalysis
-        displayName: 'Analyze Code with SonarCloud'
+      - job: UnitTests
+        displayName: 'Run Unit Tests'
         steps:
           - script: |
-              echo TODO: Add SonarCloud Analysis
+              echo TODO: Add Unit Tests
 
   - stage: Deploy
     displayName: 'Deploy to Azure Web App'
