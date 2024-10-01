@@ -6,7 +6,7 @@ BUILD_ID=$2
 # Create the JSON payload
 payload=$(cat <<EOF
 {
-  "content": "Build \`$BUILD_ID\` was successful!"
+  "content": "\`$BUILD_ID\` was successful!"
 }
 EOF
 )

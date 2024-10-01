@@ -14,8 +14,11 @@ stages:
         displayName: 'Build Docker Image'
         steps:
           - script: |
-              pwd
-              ls -al
+              echo Update SECRET_KEY in __init__.py
+              sed -i "s/SECRET_KEY=\"dev\"/SECRET_KEY=\"$(SECRET_KEY)\"/" sonic/__init__.py
+            displayName: 'Update SECRET_KEY'
+            env:
+              SECRET_KEY: $(SECRET_KEY)
           - script: |
               echo Build Docker Image
               make build VERSION=$(Build.BuildId)
