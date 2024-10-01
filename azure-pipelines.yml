@@ -6,6 +6,10 @@ trigger:
 pool:
   name: ERGATIS
 
+variables:
+  - name: DISCORD_WEBHOOK_URL
+    value: $(DISCORD_WEBHOOK_URL)
+
 stages:
   - stage: Analyze
     displayName: 'Analyze Code Quality'
@@ -15,6 +19,7 @@ stages:
         steps:
           - script: |
               echo TODO: Add SonarCloud Analysis
+            displayName: 'Analyze Code with SonarCloud'
   
   - stage: Build
     displayName: 'Build and Push Docker Image'
@@ -25,9 +30,19 @@ stages:
           - script: |
               echo Build Docker Image
               make build VERSION=$(Build.BuildId)
+            displayName: 'Build Docker Image'
           - script: |
               echo Push Docker Image
               make push VERSION=$(Build.BuildId)
+            displayName: 'Push Docker Image'
+          - script: |
+              echo Notify Discord of Successful Build
+              chmod +x notify_discord.sh
+              ./notify_discord.sh $(DISCORD_WEBHOOK_URL) "Build Success! Build ID: $(Build.BuildId)"
+            displayName: 'Notify Discord of Successful Build'
+            condition: succeeded()
+            env:
+              DISCORD_WEBHOOK_URL: $(DISCORD_WEBHOOK_URL)
 
   - stage: UnitTests
     displayName: 'UnitTests'
@@ -37,6 +52,7 @@ stages:
         steps:
           - script: |
               echo TODO: Add Unit Tests
+            displayName: 'Run Unit Tests'
 
   - stage: Deploy
     displayName: 'Deploy to Azure Web App'
@@ -52,3 +68,11 @@ stages:
               inlineScript: |
                 az webapp config container set --name SONIC --resource-group SONIC --container-image-name thefueley/sonic-poc:$(Build.BuildId)
                 az webapp config appsettings set --name SONIC --resource-group SONIC --settings WEBSITES_PORT=5000
+          - script: |
+              echo Notify Discord
+              chmod +x notify_discord.sh
+              ./notify_discord.sh $(DISCORD_WEBHOOK_URL) Deploy Success! Build ID: $(Build.BuildId)
+            displayName: 'Notify Discord of Successful Deployment'
+            condition: succeeded()
+            env:
+              DISCORD_WEBHOOK_URL: $(DISCORD_WEBHOOK_URL)
