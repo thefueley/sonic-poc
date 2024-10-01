@@ -1,4 +1,5 @@
 import os
+import logging
 
 from flask import Flask
 
@@ -47,4 +48,29 @@ def create_app(test_config=None):
     # the tutorial the blog will be the main index
     app.add_url_rule("/", endpoint="index")
 
+    configure_logging(app)
+
     return app
+
+def configure_logging(app):
+    # Get the Flask app logger
+    handler = logging.StreamHandler()
+    
+    # Set log level to INFO to avoid unnecessary ERROR tags
+    handler.setLevel(logging.INFO)
+    
+    # You can also set a custom format for the logs to avoid [ERROR] appearing
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    handler.setFormatter(formatter)
+    
+    # Remove the default handlers if any
+    if app.logger.hasHandlers():
+        app.logger.handlers.clear()
+    
+    # Add the customized handler
+    app.logger.addHandler(handler)
+
+    # Set the log level for the app's logger
+    app.logger.setLevel(logging.INFO)
