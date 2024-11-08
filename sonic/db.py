@@ -1,8 +1,7 @@
 import sqlite3
 
 import click
-from flask import current_app
-from flask import g
+from flask import current_app, g
 
 
 def get_db():
@@ -15,6 +14,7 @@ def get_db():
             current_app.config["DATABASE"], detect_types=sqlite3.PARSE_DECLTYPES
         )
         g.db.row_factory = sqlite3.Row
+        current_app.logger.info("Database connection opened.")
 
     return g.db
 
@@ -27,6 +27,7 @@ def close_db(e=None):
 
     if db is not None:
         db.close()
+        current_app.logger.info("Database connection closed.")
 
 
 def init_db():
@@ -35,6 +36,7 @@ def init_db():
 
     with current_app.open_resource("schema.sql") as f:
         db.executescript(f.read().decode("utf8"))
+        current_app.logger.info("Database initialized with schema.")
 
 
 @click.command("init-db")
@@ -42,6 +44,7 @@ def init_db_command():
     """Clear existing data and create new tables."""
     init_db()
     click.echo("Initialized the database.")
+    current_app.logger.info("init-db command executed.")
 
 
 def init_app(app):
