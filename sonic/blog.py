@@ -1,10 +1,4 @@
-from flask import Blueprint
-from flask import flash
-from flask import g
-from flask import redirect
-from flask import render_template
-from flask import request
-from flask import url_for
+from flask import Blueprint, flash, g, redirect, render_template, request, url_for, current_app as app
 from werkzeug.exceptions import abort
 
 from sonic.auth import login_required
@@ -22,6 +16,7 @@ def index():
         " FROM post p JOIN user u ON p.author_id = u.id"
         " ORDER BY created DESC"
     ).fetchall()
+    app.logger.info("Fetched all posts for the index page.")
     return render_template("blog/index.html", posts=posts)
 
 
@@ -49,9 +44,11 @@ def get_post(id, check_author=True):
     )
 
     if post is None:
+        app.logger.warning(f"Post with id {id} does not exist.")
         abort(404, f"Post id {id} doesn't exist.")
 
     if check_author and post["author_id"] != g.user["id"]:
+        app.logger.warning(f"User {g.user['id']} tried to access a post they don't own.")
         abort(403)
 
     return post
@@ -68,9 +65,11 @@ def create():
 
         if not title:
             error = "Title is required."
+            app.logger.error("Post creation failed: Title is required.")
 
         if error is not None:
             flash(error)
+            app.logger.error(f"Flashed error: {error}")
         else:
             db = get_db()
             db.execute(
@@ -78,6 +77,7 @@ def create():
                 (title, body, g.user["id"]),
             )
             db.commit()
+            app.logger.info(f"User {g.user['id']} created a new post titled '{title}'.")
             return redirect(url_for("blog.index"))
 
     return render_template("blog/create.html")
@@ -96,15 +96,18 @@ def update(id):
 
         if not title:
             error = "Title is required."
+            app.logger.error(f"Post update failed for post id {id}: Title is required.")
 
         if error is not None:
             flash(error)
+            app.logger.error(f"Flashed error: {error}")
         else:
             db = get_db()
             db.execute(
                 "UPDATE post SET title = ?, body = ? WHERE id = ?", (title, body, id)
             )
             db.commit()
+            app.logger.info(f"User {g.user['id']} updated post id {id} with new title '{title}'.")
             return redirect(url_for("blog.index"))
 
     return render_template("blog/update.html", post=post)
@@ -122,4 +125,5 @@ def delete(id):
     db = get_db()
     db.execute("DELETE FROM post WHERE id = ?", (id,))
     db.commit()
+    app.logger.info(f"User {g.user['id']} deleted post id {id}.")
     return redirect(url_for("blog.index"))

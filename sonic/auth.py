@@ -1,15 +1,7 @@
 import functools
 
-from flask import Blueprint
-from flask import flash
-from flask import g
-from flask import redirect
-from flask import render_template
-from flask import request
-from flask import session
-from flask import url_for
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
+from flask import Blueprint, flash,g,redirect,render_template, request, session, url_for, current_app as app
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from sonic.db import get_db
 
@@ -37,10 +29,15 @@ def load_logged_in_user():
 
     if user_id is None:
         g.user = None
+        app.logger.info("No user logged in.")
     else:
         g.user = (
             get_db().execute("SELECT * FROM user WHERE id = ?", (user_id,)).fetchone()
         )
+        if g.user:
+            app.logger.info(f"User {g.user['username']} (ID: {user_id}) logged in.")
+        else:
+            app.logger.warning(f"User with id {user_id} failed login.")
 
 
 @bp.route("/register", methods=("GET", "POST"))
@@ -68,15 +65,20 @@ def register():
                     (username, generate_password_hash(password)),
                 )
                 db.commit()
+                app.logger.info(f"User {username} registered successfully.")
             except db.IntegrityError:
                 # The username was already taken, which caused the
                 # commit to fail. Show a validation error.
-                error = f"User {username} is already registered."
+                # Let's not leak the fact that the username is already taken.
+                error = "Registration failed."
+                app.logger.warning(f"User {username} registration failed: {error}")
+                #error = f"User {username} is already registered."
             else:
                 # Success, go to the login page.
                 return redirect(url_for("auth.login"))
 
         flash(error)
+        app.logger.error(f"User {username} registration failed: {error}")
 
     return render_template("auth/register.html")
 
@@ -95,16 +97,20 @@ def login():
 
         if user is None:
             error = "Incorrect username."
+            app.logger.warning(f"Login attempt failed: {error} for username {username}")
         elif not check_password_hash(user["password"], password):
             error = "Incorrect password."
+            app.logger.warning(f"Login attempt failed: {error} for username {username}")
 
         if error is None:
             # store the user id in a new session and return to the index
             session.clear()
             session["user_id"] = user["id"]
+            app.logger.info(f"User {username} logged in successfully.")
             return redirect(url_for("index"))
 
         flash(error)
+        app.logger.error(f"Login error: {error}")
 
     return render_template("auth/login.html")
 
