@@ -36,14 +36,11 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    @app.route("/hello")
-    def hello():
-        return "Hello, World!"
-
     # Add the /version route
     @app.route("/version")
     def version():
         app_version = os.getenv("APP_VERSION", "😵")
+        print("Version requested")
         return {"version": app_version}
 
     # register the database commands
