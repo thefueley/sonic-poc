@@ -1,4 +1,4 @@
-# Sonic PoC
+# Sonic PoC ![Version](https://img.shields.io/docker/v/thefueley/sonic-poc?style=for-the-badge&logo=python&logoColor=white&label=OlympiLearn&link=https%3A%2F%2Folympilearn.com)
 
 ## Overview
 
