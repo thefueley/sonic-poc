@@ -7,7 +7,6 @@ from sonic.db import get_db
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-
 def login_required(view):
     """View decorator that redirects anonymous users to the login page."""
 

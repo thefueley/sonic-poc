@@ -1,7 +1,9 @@
-# CI/CD pipeline for Sonic PoC
-
+# CI/CD pipeline for SONIC PoC
 trigger:
-  - master
+  branches:
+    include:
+      - master
+pr: none
   
 pool:
   name: ERGATIS
