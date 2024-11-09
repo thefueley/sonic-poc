@@ -104,3 +104,15 @@ Push changes to the remote repository:
 ```sh
 git push -u origin <branch-name>
 ```
+
+## Linting
+
+Every time you commit changes, the linter will run to ensure the code is clean.
+
+Black is the linter used in this project.
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+Pylint is also used to check for errors in the code.
+[![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint)
+
+Read the output of these tools and fix any issues before pushing your changes.
