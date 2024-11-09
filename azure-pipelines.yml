@@ -11,7 +11,27 @@ pr: none
 pool:
   name: ERGATIS
 
-stages:  
+stages:
+  - stage: Lint
+    jobs:
+      - job: Lint
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.x'
+              addToPath: true
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install pylint black
+            displayName: 'Install dependencies'
+
+          - script: pylint .
+            displayName: 'Run pylint'
+
+          - script: black --check .
+            displayName: 'Run black'
+
   - stage: Build
     displayName: 'Build and Push Docker Image'
     jobs:
