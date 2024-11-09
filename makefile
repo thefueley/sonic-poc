@@ -42,6 +42,8 @@ run:
 
 rerun: stop clean run
 
+refresh: build rerun logs
+
 stop:
 	@if [ ! -z "$(RUNNING_CONTAINER_ID)" ]; then \
 		echo "Stopping container $(APP_NAME)..."; \
@@ -57,3 +59,6 @@ clean:
 	else \
 		echo "No container to remove."; \
 	fi
+
+logs:
+	docker logs sonic-poc -f

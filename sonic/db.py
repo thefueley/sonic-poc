@@ -14,7 +14,6 @@ def get_db():
             current_app.config["DATABASE"], detect_types=sqlite3.PARSE_DECLTYPES
         )
         g.db.row_factory = sqlite3.Row
-        current_app.logger.info("Database connection opened.")
 
     return g.db
 
@@ -27,8 +26,6 @@ def close_db(e=None):
 
     if db is not None:
         db.close()
-        current_app.logger.info("Database connection closed.")
-
 
 def init_db():
     """Clear existing data and create new tables."""

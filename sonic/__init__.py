@@ -1,7 +1,8 @@
 import os
+import time
 import logging
 
-from flask import Flask
+from flask import Flask, request, g
 
 
 def create_app(test_config=None):
@@ -48,29 +49,54 @@ def create_app(test_config=None):
     # the tutorial the blog will be the main index
     app.add_url_rule("/", endpoint="index")
 
+    # Add logging middleware
     configure_logging(app)
 
     return app
 
-def configure_logging(app):
-    # Get the Flask app logger
-    handler = logging.StreamHandler()
-    
-    # Set log level to INFO to avoid unnecessary ERROR tags
-    handler.setLevel(logging.INFO)
-    
-    # You can also set a custom format for the logs to avoid [ERROR] appearing
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    handler.setFormatter(formatter)
-    
-    # Remove the default handlers if any
-    if app.logger.hasHandlers():
-        app.logger.handlers.clear()
-    
-    # Add the customized handler
-    app.logger.addHandler(handler)
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
-    # Set the log level for the app's logger
-    app.logger.setLevel(logging.INFO)
+def configure_logging(app):
+    @app.before_request
+    def start_timer():
+        g.start = time.time()
+
+    @app.after_request
+    def log_request(response):
+        if request.path == '/favicon.ico':
+            return response
+        if request.path.startswith('/static'):
+            return response
+
+        now = time.time()
+        duration = round(now - g.start, 2)
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        host = request.host.split(':', 1)[0]
+        params = dict(request.args)
+        headers = dict(request.headers)
+        
+        # Limit body logging for performance and security
+        try:
+            body = request.get_data(as_text=True)
+        except Exception as e:
+            body = f"Error reading body: {e}"
+
+        log_params = [
+            ('method', request.method),
+            ('path', request.path),
+            ('status', response.status_code),
+            ('duration', duration),
+            ('ip', ip),
+            ('host', host),
+            ('params', params),
+            ('headers', headers),
+            ('body', body)
+        ]
+
+        parts = [f"{name}={value}" for name, value in log_params]
+        line = " ".join(parts)
+
+        app.logger.info(line)
+
+        return response
