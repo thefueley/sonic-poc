@@ -16,11 +16,6 @@ stages:
     jobs:
       - job: Lint
         steps:
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '3.x'
-              addToPath: true
-
           - script: |
               python -m pip install --upgrade pip
               pip install pylint black
