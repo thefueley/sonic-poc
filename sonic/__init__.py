@@ -40,7 +40,7 @@ def create_app(test_config=None):
     @app.route("/version")
     def version():
         app_version = os.getenv("APP_VERSION", "😵")
-        print("Version requested")
+        print("Version requested.")
         return {"version": app_version}
 
     # register the database commands
