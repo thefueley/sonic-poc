@@ -19,7 +19,7 @@ USER sonic
 # Set environment variables
 ENV FLASK_APP=sonic
 
-CMD ["sh", "-c", "flask init-db && flask run --host=0.0.0.0"]
+CMD ["sh", "-c", "flask init-db && waitress-serve --ident=OlympiLearn --port=5000 --call 'sonic:create_app'"]
 
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.title="sonic-poc" \
