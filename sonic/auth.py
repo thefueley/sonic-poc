@@ -1,11 +1,22 @@
 import functools
 
-from flask import Blueprint, flash,g,redirect,render_template, request, session, url_for, current_app as app
+from flask import (
+    Blueprint,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+    current_app as app,
+)
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from sonic.db import get_db
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
+
 
 def login_required(view):
     """View decorator that redirects anonymous users to the login page."""
@@ -71,7 +82,7 @@ def register():
                 # Let's not leak the fact that the username is already taken.
                 error = "Registration failed."
                 app.logger.warning(f"User {username} registration failed: {error}")
-                #error = f"User {username} is already registered."
+                # error = f"User {username} is already registered."
             else:
                 # Success, go to the login page.
                 return redirect(url_for("auth.login"))
