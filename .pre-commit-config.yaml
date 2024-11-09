@@ -1,0 +1,11 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.10.0  # Use the latest stable version of Black
+    hooks:
+      - id: black
+        args: ["--check"]  # Use "--check" to check formatting without modifying files
+
+  - repo: https://github.com/pylint-dev/pylint
+    rev: v3.3.1  # Use the latest stable version of Pylint
+    hooks:
+      - id: pylint
