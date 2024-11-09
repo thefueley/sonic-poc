@@ -10,7 +10,7 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
 
     # Determine the database path based on the environment
-    if os.getenv("WEBSITE_HOSTNAME"):
+    if os.getenv("WEBSITES_ENABLE_APP_SERVICE_STORAGE"):
         # Using Azure File Service mount path
         database_path = os.path.join("/mnt/olympilearn", "sonic.sqlite")
     else:
