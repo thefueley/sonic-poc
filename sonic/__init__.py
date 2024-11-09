@@ -11,8 +11,8 @@ def create_app(test_config=None):
 
     # Determine the database path based on the environment
     if os.getenv("WEBSITE_HOSTNAME"):
-        # Running on Azure Web App Service
-        database_path = os.path.join("/home", "sonic.sqlite")
+        # Using Azure File Service mount path
+        database_path = os.path.join("/mnt/olympilearn", "sonic.sqlite")
     else:
         # Running locally
         database_path = os.path.join(app.instance_path, "sonic.sqlite")
