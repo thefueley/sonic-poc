@@ -83,7 +83,7 @@ If the app is already running in Docker and you want to view new changes you mad
 
 Then refresh the browser to view the changes.
 
-Once you're done codiing, push your changes to the remote repository.
+Once you're done coding, push your changes to the remote repository.
 
 ### Git Workflow
 
