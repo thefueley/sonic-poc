@@ -3,6 +3,9 @@ trigger:
   branches:
     include:
       - master
+  paths:
+    exclude:
+      - README.md
 pr: none
   
 pool:
