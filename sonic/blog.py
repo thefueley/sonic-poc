@@ -1,4 +1,13 @@
-from flask import Blueprint, flash, g, redirect, render_template, request, url_for, current_app as app
+from flask import (
+    Blueprint,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    url_for,
+    current_app as app,
+)
 from werkzeug.exceptions import abort
 
 from sonic.auth import login_required
@@ -48,7 +57,9 @@ def get_post(id, check_author=True):
         abort(404, f"Post id {id} doesn't exist.")
 
     if check_author and post["author_id"] != g.user["id"]:
-        app.logger.warning(f"User {g.user['id']} tried to access a post they don't own.")
+        app.logger.warning(
+            f"User {g.user['id']} tried to access a post they don't own."
+        )
         abort(403)
 
     return post
@@ -107,7 +118,9 @@ def update(id):
                 "UPDATE post SET title = ?, body = ? WHERE id = ?", (title, body, id)
             )
             db.commit()
-            app.logger.info(f"User {g.user['id']} updated post id {id} with new title '{title}'.")
+            app.logger.info(
+                f"User {g.user['id']} updated post id {id} with new title '{title}'."
+            )
             return redirect(url_for("blog.index"))
 
     return render_template("blog/update.html", post=post)
