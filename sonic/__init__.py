@@ -3,31 +3,31 @@ import time
 import logging
 
 from flask import Flask, request, g
+from sonic.db import db, init_app, init_db
+from sonic.models import *
 
 
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
 
-    # Determine the database path based on the environment
+    # Database configuration
     if os.getenv("WEBSITE_HOSTNAME"):
         # Using Azure Web App Storage
-        database_path = os.path.join("/home", "sonic.sqlite")
+        database_uri = "sqlite:////home/sonic.sqlite"
     else:
         # Running locally
-        database_path = os.path.join(app.instance_path, "sonic.sqlite")
+        database_uri = f"sqlite:///{os.path.join(app.instance_path, 'sonic.sqlite')}"
 
     app.config.from_mapping(
-        # a default secret that should be overridden by instance config
         SECRET_KEY="dev",
-        DATABASE=database_path,
+        SQLALCHEMY_DATABASE_URI=database_uri,
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
 
     if test_config is None:
-        # load the instance config, if it exists, when not testing
         app.config.from_pyfile("config.py", silent=True)
     else:
-        # load the test config if passed in
         app.config.update(test_config)
 
     # ensure the instance folder exists
@@ -39,24 +39,23 @@ def create_app(test_config=None):
     # Add the /version route
     @app.route("/version")
     def version():
-        app_version = os.getenv("APP_VERSION", "😵")
+        app_version = os.getenv("APP_VERSION", "0")
         print("Version requested.")
         return {"version": app_version}
 
-    # register the database commands
-    from sonic import db
+    # register the database and migrations
+    init_app(app)
 
-    db.init_app(app)
+    # Initialize the database only if it does not exist
+    with app.app_context():
+        init_db()
 
-    # apply the blueprints to the app
+    # Register blueprints and other components
     from sonic import auth, blog
-
     app.register_blueprint(auth.bp)
     app.register_blueprint(blog.bp)
-
     app.add_url_rule("/", endpoint="index")
 
-    # Add logging middleware
     configure_logging(app)
 
     return app

@@ -21,7 +21,17 @@ USER sonic
 ENV FLASK_APP=sonic
 ENV APP_VERSION=${APP_VERSION}
 
-CMD ["sh", "-c", "flask init-db && waitress-serve --ident=OlympiLearn --port=5000 --call 'sonic:create_app'"]
+# CMD to run the initialization and server
+CMD ["sh", "-c", "if [ ! -f /home/sonic.sqlite ]; then \
+    echo 'Database not found. Running flask db init and upgrade...'; \
+    flask db init || true; \
+    flask db upgrade; \
+else \
+    echo 'Database found. Skipping init and only running upgrade.'; \
+fi; \
+flask db migrate -m 'Checking for new migrations' || true; \
+flask db upgrade && \
+waitress-serve --ident=OlympiLearn --port=5000 --call 'sonic:create_app'"]
 
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.title="sonic-poc" \

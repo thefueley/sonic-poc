@@ -13,63 +13,16 @@ pool:
 
 stages:
   - stage: Build
-    displayName: 'Build and Push Docker Image'
+    displayName: 'Build Image'
     jobs:
       - job: Build
-        displayName: 'Build Docker Image'
+        displayName: 'Dummy Build'
         steps:
-          - script: |
-              echo Update SECRET_KEY in __init__.py
-              sed -i "s/SECRET_KEY=\"dev\"/SECRET_KEY=\"$(SECRET_KEY)\"/" sonic/__init__.py
-            displayName: 'Update SECRET_KEY'
-            env:
-              SECRET_KEY: $(SECRET_KEY)
-          - script: |
-              echo Build Docker Image
-              make build VERSION=$(Build.BuildId)
-            displayName: 'Build Docker Image'
-          - script: |
-              echo Push Docker Image
-              make push VERSION=$(Build.BuildId)
-            displayName: 'Push Docker Image'
-          - script: |
-              echo Notify Discord of Successful Build
-              chmod +x scripts/notify_discord.sh
-              ./scripts/notify_discord.sh $(DISCORD_WEBHOOK_URL) "Build Success! Build ID: $(Build.BuildId)"
-            displayName: 'Notify Discord of Successful Build'
-            condition: succeeded()
-            env:
-              DISCORD_WEBHOOK_URL: $(DISCORD_WEBHOOK_URL)
-
-  - stage: UnitTests
-    displayName: 'UnitTests'
-    jobs:
-      - job: UnitTests
-        displayName: 'Run Unit Tests'
-        steps:
-          - script: |
-              echo TODO: Add Unit Tests
-            displayName: 'Run Unit Tests'
-
-  - stage: Deploy
-    displayName: 'Deploy to Azure Web App'
-    jobs:
-      - job: Deploy
-        displayName: 'Deploy Docker Image to Azure Web App'
-        steps:
-          - task: AzureCLI@2
-            inputs:
-              azureSubscription: 'AzureRM-SONIC'
-              scriptType: 'bash'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                az webapp config container set --name SONIC --resource-group SONIC --container-image-name thefueley/sonic-poc:$(Build.BuildId)
-                az webapp config appsettings set --name SONIC --resource-group SONIC --settings WEBSITES_PORT=5000 APP_VERSION=$(Build.BuildId)
           - script: |
               echo Notify Discord
               chmod +x scripts/notify_discord.sh
-              ./scripts/notify_discord.sh $(DISCORD_WEBHOOK_URL) "Deploy Success! Build ID: $(Build.BuildId)"
-            displayName: 'Notify Discord of Successful Deployment'
+              ./scripts/notify_discord.sh $(DISCORD_WEBHOOK_URL) "SONIC POC Build ID: $(Build.BuildId)"
+            displayName: 'Notify Discord'
             condition: succeeded()
             env:
               DISCORD_WEBHOOK_URL: $(DISCORD_WEBHOOK_URL)

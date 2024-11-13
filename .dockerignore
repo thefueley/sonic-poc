@@ -1,6 +1,7 @@
 # Ignore workspace settings
 *.code-workspace
 .vscode/
+.DS_Store
 
 scripts/
 

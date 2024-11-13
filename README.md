@@ -1,8 +1,8 @@
-# Sonic PoC ![Version](https://img.shields.io/docker/v/thefueley/sonic-poc?style=for-the-badge&logo=python&logoColor=white&label=OlympiLearn&link=https%3A%2F%2Folympilearn.com)
+# OlympiLearn LMS ![Version](https://img.shields.io/docker/v/thefueley/sonic-poc?style=for-the-badge&logo=python&logoColor=white&label=OlympiLearn&link=https%3A%2F%2Folympilearn.com)
 
 ## Overview
 
-This project is a proof of concept for the Sonic application. It includes instructions on how to run the app using the Makefile, Docker container, and how to build the app. Additionally, it provides guidelines for using Git to check in changes.
+Project homepage for the OlympiLearn LMS application. This app is an LMS designed to teach students about Olympic sporting events. This page includes instructions on how to run the app using the Makefile, Docker container, and how to build the app. Additionally, it provides guidelines for using Git to check in changes.
 
 ## Prerequisites
 
@@ -77,13 +77,24 @@ Make changes to the code.
 
 Run the app to verify functionality.
 
-Browse to `http://localhost:5000` to view the app.
+Browse to `http://localhost:5001` to view the app.
 
 If the app is already running in Docker and you want to view new changes you made, you can rerun the app: `make refresh`.
 
 Then refresh the browser to view the changes.
 
 Once you're done coding, push your changes to the remote repository.
+
+### Updating Model
+
+If you make changes to the model, you need to run the following commands in VS Code terminal before you commit your changes:
+
+```sh
+export FLASK_APP=sonic:create_app
+flask db init
+flask db migrate -m "Your migration message"
+flask db upgrade
+```
 
 ### Git Workflow
 
