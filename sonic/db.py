@@ -1,53 +1,30 @@
-import sqlite3
-
-import click
+import os
 from flask import current_app, g
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
+# Initialize SQLAlchemy and Flask-Migrate
+db = SQLAlchemy()
+migrate = Migrate()
 
 def get_db():
-    """Connect to the application's configured database. The connection
-    is unique for each request and will be reused if this is called
-    again.
-    """
+    """Get the current database session."""
     if "db" not in g:
-        g.db = sqlite3.connect(
-            current_app.config["DATABASE"], detect_types=sqlite3.PARSE_DECLTYPES
-        )
-        g.db.row_factory = sqlite3.Row
-
+        g.db = db.session  # Use the SQLAlchemy session
     return g.db
 
-
-def close_db(e=None):
-    """If this request connected to the database, close the
-    connection.
-    """
-    db = g.pop("db", None)
-
-    if db is not None:
-        db.close()
-
+def init_app(app):
+    """Register SQLAlchemy and Flask-Migrate with the Flask app."""
+    db.init_app(app)
+    migrate.init_app(app, db)
 
 def init_db():
-    """Clear existing data and create new tables."""
-    db = get_db()
-
-    with current_app.open_resource("schema.sql") as f:
-        db.executescript(f.read().decode("utf8"))
-        current_app.logger.info("Database initialized with schema.")
-
-
-@click.command("init-db")
-def init_db_command():
-    """Clear existing data and create new tables."""
-    init_db()
-    click.echo("Initialized the database.")
-    current_app.logger.info("init-db command executed.")
-
-
-def init_app(app):
-    """Register database functions with the Flask app. This is called by
-    the application factory.
-    """
-    app.teardown_appcontext(close_db)
-    app.cli.add_command(init_db_command)
+    """Initialize the database only if it does not exist."""
+    db_path = os.path.join(current_app.instance_path, "sonic.sqlite")
+    
+    # Check if the SQLite database file already exists
+    if not os.path.exists(db_path):
+        with current_app.app_context():
+            current_app.logger.info("Database file not found. Ensure migrations are applied using 'flask db upgrade'.")
+    else:
+        current_app.logger.info("Database file exists. Make sure to apply migrations if needed.")

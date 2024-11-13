@@ -12,7 +12,7 @@ from flask import (
     current_app as app,
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-
+from sqlalchemy import text
 from sonic.db import get_db
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -41,9 +41,9 @@ def load_logged_in_user():
         g.user = None
         app.logger.info("No user logged in.")
     else:
-        g.user = (
-            get_db().execute("SELECT * FROM user WHERE id = ?", (user_id,)).fetchone()
-        )
+        g.user = get_db().execute(
+            text("SELECT * FROM user WHERE id = :id"), {"id": user_id}
+        ).mappings().fetchone()
         if g.user:
             app.logger.info(f"User {g.user['username']} (ID: {user_id}) logged in.")
         else:
@@ -52,37 +52,33 @@ def load_logged_in_user():
 
 @bp.route("/register", methods=("GET", "POST"))
 def register():
-    """Register a new user.
-
-    Validates that the username is not already taken. Hashes the
-    password for security.
-    """
+    """Register a new user with an email and role."""
     if request.method == "POST":
         username = request.form["username"]
+        email = request.form["email"]
         password = request.form["password"]
-        db = get_db()
+        role = request.form.get("role", "student")
         error = None
 
         if not username:
             error = "Username is required."
+        elif not email:
+            error = "Email is required."
         elif not password:
             error = "Password is required."
 
         if error is None:
             try:
-                db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
+                get_db().execute(
+                    text("INSERT INTO user (username, email, password, role) VALUES (:username, :email, :password, :role)"),
+                    {"username": username, "email": email, "password": generate_password_hash(password), "role": role},
                 )
-                db.commit()
+                get_db().commit()
                 app.logger.info(f"User {username} registered successfully.")
-            except db.IntegrityError:
-                # The username was already taken, which caused the
-                # commit to fail. Show a validation error.
-                # Let's not leak the fact that the username is already taken.
+            except Exception as e:
                 error = "Registration failed."
-                app.logger.warning(f"User {username} registration failed: {error}")
-                # error = f"User {username} is already registered."
+                app.logger.warning(f"User {username} registration failed: {str(e)}")
+
             else:
                 # Success, go to the login page.
                 return redirect(url_for("auth.login"))
@@ -99,11 +95,10 @@ def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        db = get_db()
         error = None
-        user = db.execute(
-            "SELECT * FROM user WHERE username = ?", (username,)
-        ).fetchone()
+        user = get_db().execute(
+            text("SELECT * FROM user WHERE username = :username"), {"username": username}
+        ).mappings().fetchone()
 
         if user is None:
             error = "Incorrect username."

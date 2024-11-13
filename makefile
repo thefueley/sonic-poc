@@ -62,3 +62,36 @@ clean:
 
 logs:
 	docker logs sonic-poc -f
+
+# =================================================================
+# Deloy to RPI environment
+RPI_RUNNING_CONTAINER_ID=$(shell ssh p1 "docker ps -q -f name=$(APP_NAME)")
+RPI_STOPPED_CONTAINER_ID=$(shell ssh p1 "docker ps -aq -f name=$(APP_NAME)")
+RPI_LOCAL_DIR=/home/anax/sonic
+RPI_CONTAINER_DIR=/home
+
+deploy-rpi:
+	@if [ -z "$(RPI_RUNNING_CONTAINER_ID)" ]; then \
+		echo "Starting new container..."; \
+		docker run -d --name $(APP_NAME) -p $(HOST_PORT):$(PORT) -v $(RPI_LOCAL_DIR):$(RPI_CONTAINER_DIR) $(IMAGE_NAME); \
+	else \
+		echo "Container $(APP_NAME) is already running"; \
+	fi
+
+redploy-rpi: stop-rpi clean-rpi deploy-rpi
+
+stop-rpi:
+	@if [ ! -z "$(RPI_RUNNING_CONTAINER_ID)" ]; then \
+		echo "Stopping container $(APP_NAME)..."; \
+		docker stop $(RPI_RUNNING_CONTAINER_ID); \
+	else \
+		echo "No running container to stop."; \
+	fi
+
+clean-rpi:
+	@if [ ! -z "$(RPI_STOPPED_CONTAINER_ID)" ]; then \
+		echo "Removing container $(APP_NAME)..."; \
+		docker rm $(RPI_STOPPED_CONTAINER_ID); \
+	else \
+		echo "No container to remove."; \
+	fi
